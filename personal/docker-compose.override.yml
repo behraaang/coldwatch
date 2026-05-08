@@ -18,7 +18,13 @@ services:
       RAILS_ENV: development
       DATABASE_URL: postgres://coldwatch:devpass@db:5432/coldwatch_personal_dev
       REDIS_URL: redis://redis:6379/0
-    command: bash -c "bin/rails db:prepare && bin/rails server -b 0.0.0.0 -p 3000"
+    command: >
+      bash -c "
+        bin/rails db:prepare &&
+        bin/rails tailwindcss:build &&
+        ( bin/rails tailwindcss:watch & ) &&
+        exec bin/rails server -b 0.0.0.0 -p 3000
+      "
 
   sidekiq:
     build:
