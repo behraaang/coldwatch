@@ -1,0 +1,36 @@
+# Rails-app-local ignores (layered on top of the repo-root .gitignore).
+
+# Bundler config
+/.bundle
+
+# SQLite DBs (we use Postgres but Rails defaults still sometimes touch SQLite)
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/*.sqlite3-*
+
+# Logs and tempfiles
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Pidfiles
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Active Storage uploads
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/
+!/tmp/storage/.keep
+
+# Compiled assets
+/public/assets
+
+# Rails master key — NEVER commit
+/config/master.key
+
+# Local-only overrides
+docker-compose.local.yml
