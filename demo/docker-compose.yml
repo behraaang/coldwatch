@@ -7,7 +7,9 @@ services:
   web:
     build: .
     container_name: coldwatch_demo_web
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       RAILS_ENV: production
       DATABASE_URL: postgres://coldwatch:${POSTGRES_PASSWORD}@db:5432/coldwatch_demo
@@ -26,7 +28,9 @@ services:
     build: .
     container_name: coldwatch_demo_sidekiq
     command: bundle exec sidekiq
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     environment:
       RAILS_ENV: production
       DATABASE_URL: postgres://coldwatch:${POSTGRES_PASSWORD}@db:5432/coldwatch_demo

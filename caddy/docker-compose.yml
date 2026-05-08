@@ -7,7 +7,9 @@ services:
   caddy:
     image: caddy:2-alpine
     container_name: coldwatch_caddy
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     ports:
       - "80:80"
       - "443:443"
