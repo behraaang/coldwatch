@@ -2,6 +2,8 @@
 
 This is a decision tree. Do not read it for the first time during an actual emergency. Read it now, set it up now, and only re-read it when the alarm fires.
 
+> **Different problem:** if you suspect your seed may be compromised but **no alarm has fired yet**, this is not the right document. See [`migration-emergency.md`](migration-emergency.md) — that's the pre-emptive migration playbook. This runbook is for the alarm-is-firing-right-now case.
+
 ## Prerequisite — set this up *before* the alarm ever fires
 
 You need a **second hardware wallet** with a **separate seed phrase** stored at a **separate physical location**. Without it, you have nowhere safe to send the funds during the fight-back window — any address derived from your compromised seed is also compromised.
