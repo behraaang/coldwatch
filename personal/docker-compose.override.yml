@@ -6,6 +6,9 @@ services:
   web:
     build:
       dockerfile: Dockerfile.dev
+    env_file:
+      - path: .env.development
+        required: false
     ports:
       - "3000:3000"
     volumes:
@@ -20,6 +23,9 @@ services:
   sidekiq:
     build:
       dockerfile: Dockerfile.dev
+    env_file:
+      - path: .env.development
+        required: false
     volumes:
       - .:/rails
       - bundle_cache:/usr/local/bundle
