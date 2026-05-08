@@ -49,7 +49,7 @@ Rails 7.2, PostgreSQL 16, Sidekiq + Redis, mempool.space WebSocket (REST for ini
 
 This is the **scaffold** — infrastructure, docs, and CI guardrails. The Rails apps themselves are bootstrapped on Day 1 of the build; see `BOOTSTRAP.md`.
 
-- `docs/architecture.md`, `docs/threat-model.md`, `docs/runbook.md`, `docs/migration-emergency.md`, `docs/sparrow-setup.md`, `docs/ledger-setup.md`
+- `docs/architecture.md`, `docs/threat-model.md`, `docs/runbook.md`, `docs/migration-emergency.md`, `docs/sparrow-setup.md`, `docs/ledger-setup.md`, `docs/build-plan.md`, `docs/frontend-stack.md`
 - `personal/` and `demo/` — two independent Docker Compose stacks
 - `caddy/` — single Caddy reverse proxy fronting both, IP-allowlist for personal, public for demo
 - `scripts/grep-xpub-guard.sh` — fails CI if any xpub-shaped string lands in tracked files
