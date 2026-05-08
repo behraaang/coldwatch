@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  xpub-guard:
+    name: xpub leakage guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run xpub grep guard
+        run: |
+          chmod +x scripts/grep-xpub-guard.sh
+          ./scripts/grep-xpub-guard.sh
+
+  lint-compose:
+    name: docker-compose lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate personal stack
+        run: docker compose -f personal/docker-compose.yml config --quiet
+      - name: Validate demo stack
+        run: docker compose -f demo/docker-compose.yml config --quiet
+      - name: Validate caddy stack
+        run: docker compose -f caddy/docker-compose.yml config --quiet
+        env:
+          DOMAIN: example.com
+          HOME_IP: 1.2.3.4/32
+          ACME_EMAIL: ci@example.com
+
+  # When the Rails apps land in personal/ and demo/, add a job here:
+  # rails-tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ruby/setup-ruby@v1
+  #       with:
+  #         working-directory: personal
+  #         bundler-cache: true
+  #     - run: cd personal && bundle exec rspec

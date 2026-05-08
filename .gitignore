@@ -1,0 +1,56 @@
+# Secrets — NEVER commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+config/master.key
+config/credentials/*.key
+
+# Rails
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/public/assets
+.byebug_history
+.rspec_status
+
+# Bundler
+/.bundle
+/vendor/bundle
+/lib/bundler/man/
+
+# Node
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# Database
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/*.sqlite3-*
+
+# Docker
+*.local.yml
+
+# Caddy state
+/caddy/data
+/caddy/config
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Coverage
+/coverage/

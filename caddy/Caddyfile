@@ -1,0 +1,49 @@
+# Caddy config for coldwatch — single instance, two virtual hosts.
+# Replace {$DOMAIN} and {$HOME_IP} via the .env file in this directory.
+
+# Personal — IP-allowlisted
+coldwatch.{$DOMAIN} {
+	encode zstd gzip
+
+	@allowed remote_ip {$HOME_IP}
+	handle @allowed {
+		reverse_proxy coldwatch_personal_web:3000 {
+			header_up X-Forwarded-Proto https
+		}
+	}
+
+	handle {
+		respond "Forbidden" 403 {
+			close
+		}
+	}
+
+	log {
+		output file /var/log/caddy/personal.access.log
+		format json
+	}
+}
+
+# Demo — public, with rate limiting
+demo.{$DOMAIN} {
+	encode zstd gzip
+
+	# Strict TLS posture; HSTS for the public surface
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		# Disable indexing — we don't want this demo in Google
+		X-Robots-Tag "noindex, nofollow"
+	}
+
+	reverse_proxy coldwatch_demo_web:3000 {
+		header_up X-Forwarded-Proto https
+	}
+
+	log {
+		output file /var/log/caddy/demo.access.log
+		format json
+	}
+}

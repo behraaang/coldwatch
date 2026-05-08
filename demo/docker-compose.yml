@@ -1,0 +1,73 @@
+# Demo stack — public, paste-your-own-xpub. Independent from personal stack.
+# This file expects a Rails app at ./ (created by BOOTSTRAP.md step 3).
+
+name: coldwatch_demo
+
+services:
+  web:
+    build: .
+    container_name: coldwatch_demo_web
+    env_file: .env
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://coldwatch:${POSTGRES_PASSWORD}@db:5432/coldwatch_demo
+      REDIS_URL: redis://redis:6379/0
+      DEMO_MODE: "true"
+      DEMO_SESSION_TTL_SECONDS: "3600"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - internal
+      - coldwatch_web
+    restart: unless-stopped
+
+  sidekiq:
+    build: .
+    container_name: coldwatch_demo_sidekiq
+    command: bundle exec sidekiq
+    env_file: .env
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://coldwatch:${POSTGRES_PASSWORD}@db:5432/coldwatch_demo
+      REDIS_URL: redis://redis:6379/0
+      DEMO_MODE: "true"
+      DEMO_SESSION_TTL_SECONDS: "3600"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - internal
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: coldwatch_demo_db
+    environment:
+      POSTGRES_USER: coldwatch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: coldwatch_demo
+    volumes:
+      - demo_pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: coldwatch_demo_redis
+    volumes:
+      - demo_redis:/data
+    networks:
+      - internal
+    restart: unless-stopped
+
+volumes:
+  demo_pgdata:
+  demo_redis:
+
+networks:
+  internal:
+    driver: bridge
+  coldwatch_web:
+    external: true
