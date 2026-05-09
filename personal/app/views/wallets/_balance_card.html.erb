@@ -1,0 +1,30 @@
+<%# Balance card — Turbo-Stream-targeted; replaced when WalletSyncJob completes. %>
+<div id="<%= dom_id(wallet, :balance_card) %>"
+     class="sm:text-right bg-zinc-900 border border-zinc-800 rounded px-5 py-3 min-w-[180px]">
+  <div class="flex items-center justify-between sm:justify-end gap-3 mb-1">
+    <span class="text-xs text-zinc-600 uppercase tracking-wide font-mono">Balance</span>
+    <%= button_to sync_wallet_path(wallet), method: :post, form_class: "inline",
+          class: "text-zinc-600 hover:text-zinc-300 transition-colors p-0.5",
+          title: "Sync now" do %>
+      <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2 7a5 5 0 019-3l1 1M12 7a5 5 0 01-9 3l-1-1M11 2v3h-3M3 12V9h3"/>
+      </svg>
+    <% end %>
+  </div>
+
+  <% if wallet.synced? %>
+    <div class="text-2xl font-mono tabular-nums tracking-tight <%= wallet.balance_sats > 0 ? 'text-zinc-100' : 'text-zinc-500' %>">
+      <%= format("%.8f", wallet.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %> <span class="text-sm text-zinc-500">BTC</span>
+    </div>
+    <div class="text-xs text-zinc-700 font-mono tabular-nums mt-0.5">
+      <%= number_with_delimiter(wallet.balance_sats) %> sats
+    </div>
+  <% else %>
+    <div class="text-2xl font-mono tabular-nums tracking-tight text-zinc-500">
+      <span class="animate-pulse">Syncing&hellip;</span>
+    </div>
+    <div class="text-xs text-zinc-700 font-mono tabular-nums mt-0.5">
+      &mdash; sats
+    </div>
+  <% end %>
+</div>

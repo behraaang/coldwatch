@@ -31,5 +31,10 @@ module App
       config.active_record.encryption.deterministic_key      = ENV["RAILS_ENCRYPTION_DETERMINISTIC_KEY"]
       config.active_record.encryption.key_derivation_salt    = ENV["RAILS_ENCRYPTION_KEY_DERIVATION_SALT"]
     end
+
+    # ActiveJob runs through Sidekiq. The mempool sync and the WebSocket
+    # subscriber both live in the sidekiq container; the web container
+    # only enqueues.
+    config.active_job.queue_adapter = :sidekiq
   end
 end

@@ -1,3 +1,6 @@
+<%# Subscribe to live updates from WalletSyncJob (and future MempoolSocketWorker) %>
+<%= turbo_stream_from @wallet %>
+
 <%# Breadcrumb %>
 <div class="mb-8">
   <%= link_to wallets_path,
@@ -13,7 +16,6 @@
 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
   <div>
     <div class="flex items-center gap-2.5 mb-1">
-      <%# Status dot — green if synced recently, amber if not yet %>
       <% dot_color = @wallet.synced? ? "bg-emerald-500" : "bg-amber-400/70" %>
       <span class="h-2.5 w-2.5 rounded-full <%= dot_color %> shrink-0"></span>
       <h1 class="text-3xl font-semibold tracking-tight text-zinc-100"><%= @wallet.name %></h1>
@@ -31,28 +33,10 @@
     </div>
   </div>
 
-  <%# Balance card — real value from persisted addresses %>
-  <div class="sm:text-right bg-zinc-900 border border-zinc-800 rounded px-5 py-3 min-w-[180px]">
-    <div class="flex items-center justify-between sm:justify-end gap-3 mb-1">
-      <span class="text-xs text-zinc-600 uppercase tracking-wide font-mono">Balance</span>
-      <%= button_to sync_wallet_path(@wallet), method: :post, form_class: "inline",
-            class: "text-zinc-600 hover:text-zinc-300 transition-colors p-0.5",
-            title: "Sync now" do %>
-        <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2 7a5 5 0 019-3l1 1M12 7a5 5 0 01-9 3l-1-1M11 2v3h-3M3 12V9h3"/>
-        </svg>
-      <% end %>
-    </div>
-    <div class="text-2xl font-mono tabular-nums tracking-tight <%= @wallet.balance_sats > 0 ? 'text-zinc-100' : 'text-zinc-500' %>">
-      <%= format("%.8f", @wallet.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %> <span class="text-sm text-zinc-500">BTC</span>
-    </div>
-    <div class="text-xs text-zinc-700 font-mono tabular-nums mt-0.5">
-      <%= number_with_delimiter(@wallet.balance_sats) %> sats
-    </div>
-  </div>
+  <%= render "balance_card", wallet: @wallet %>
 </div>
 
-<%# Stats strip %>
+<%# Stats strip — static snapshot, refreshes on full-page reload %>
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-zinc-800 border border-zinc-800 rounded overflow-hidden mb-8">
   <div class="bg-zinc-900 px-4 py-3">
     <div class="text-xs text-zinc-600 font-mono uppercase tracking-wide mb-1">Activity</div>
@@ -72,90 +56,7 @@
   </div>
 </div>
 
-<%# Address columns %>
-<div class="grid md:grid-cols-2 gap-4">
-
-  <%# Receive — primary column %>
-  <div class="bg-zinc-900 border border-zinc-800 rounded overflow-hidden">
-    <div class="px-5 py-3 border-b border-zinc-800 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11 3L3 11M3 11h6M3 11V5"/>
-        </svg>
-        <span class="text-xs font-medium text-zinc-300 uppercase tracking-wide">Receive</span>
-      </div>
-      <span class="text-xs text-zinc-600 font-mono">m/84&rsquo;/0&rsquo;/0&rsquo;/0/i</span>
-    </div>
-
-    <div class="divide-y divide-zinc-800/50 max-h-[480px] overflow-y-auto">
-      <% @receive_addresses.each do |a| %>
-        <div class="group flex items-center gap-3 px-5 py-2.5 <%= a.tx_count > 0 ? 'bg-emerald-500/5' : '' %>">
-          <span class="text-xs text-zinc-600 font-mono tabular-nums w-6 shrink-0"><%= a.index_at_branch %></span>
-          <span class="text-xs text-zinc-300 font-mono truncate flex-1 min-w-0"><%= a.address %></span>
-          <% if a.balance_sats > 0 %>
-            <span class="text-xs font-mono tabular-nums text-emerald-400 shrink-0">
-              <%= format("%.8f", a.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>
-            </span>
-          <% elsif a.tx_count > 0 %>
-            <span class="text-xs font-mono tabular-nums text-zinc-600 shrink-0" title="Used, currently empty">
-              <%= a.tx_count %>tx
-            </span>
-          <% end %>
-          <button
-            type="button"
-            onclick="navigator.clipboard.writeText('<%= a.address %>')"
-            title="Copy address"
-            class="shrink-0 opacity-0 group-hover:opacity-100 p-1 text-zinc-600 hover:text-zinc-300 rounded transition-all focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-zinc-500"
-            aria-label="Copy <%= a.address %>">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="5" y="5" width="7" height="7" rx="1"/>
-              <path stroke-linecap="round" d="M9 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v5a1 1 0 001 1h2"/>
-            </svg>
-          </button>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <%# Change — secondary column %>
-  <div class="bg-zinc-900 border border-zinc-800/60 rounded overflow-hidden opacity-90">
-    <div class="px-5 py-3 border-b border-zinc-800/60 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="w-3.5 h-3.5 text-zinc-500" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 11L11 3M11 3H5M11 3v6"/>
-        </svg>
-        <span class="text-xs font-medium text-zinc-500 uppercase tracking-wide">Change</span>
-      </div>
-      <span class="text-xs text-zinc-700 font-mono">m/84&rsquo;/0&rsquo;/0&rsquo;/1/i</span>
-    </div>
-
-    <div class="divide-y divide-zinc-800/30 max-h-[480px] overflow-y-auto">
-      <% @change_addresses.each do |a| %>
-        <div class="group flex items-center gap-3 px-5 py-2.5">
-          <span class="text-xs text-zinc-700 font-mono tabular-nums w-6 shrink-0"><%= a.index_at_branch %></span>
-          <span class="text-xs text-zinc-500 font-mono truncate flex-1 min-w-0"><%= a.address %></span>
-          <% if a.balance_sats > 0 %>
-            <span class="text-xs font-mono tabular-nums text-emerald-400/80 shrink-0">
-              <%= format("%.8f", a.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>
-            </span>
-          <% end %>
-          <button
-            type="button"
-            onclick="navigator.clipboard.writeText('<%= a.address %>')"
-            title="Copy address"
-            class="shrink-0 opacity-0 group-hover:opacity-100 p-1 text-zinc-700 hover:text-zinc-400 rounded transition-all focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
-            aria-label="Copy <%= a.address %>">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="5" y="5" width="7" height="7" rx="1"/>
-              <path stroke-linecap="round" d="M9 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v5a1 1 0 001 1h2"/>
-            </svg>
-          </button>
-        </div>
-      <% end %>
-    </div>
-  </div>
-</div>
-
-<p class="text-xs text-zinc-700 mt-4 font-mono">
-  Showing all <%= @wallet.gap_limit %> addresses per branch (gap limit). Re-run sync via the refresh icon next to the balance.
-</p>
+<%= render "addresses_panel",
+      wallet: @wallet,
+      receive_addresses: @receive_addresses,
+      change_addresses: @change_addresses %>

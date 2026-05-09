@@ -1,0 +1,104 @@
+<%# Addresses panel — Turbo-Stream-targeted; replaced after materialize and after sync. %>
+<div id="<%= dom_id(wallet, :addresses_panel) %>">
+  <% if receive_addresses.empty? && change_addresses.empty? %>
+    <%# Materialization in flight — derived from xpub but not yet persisted %>
+    <div class="bg-zinc-900 border border-zinc-800 rounded px-6 py-8 text-center">
+      <div class="flex justify-center mb-4">
+        <svg class="w-6 h-6 text-zinc-500 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+      </div>
+      <p class="text-sm text-zinc-300">Materializing addresses&hellip;</p>
+      <p class="text-xs text-zinc-500 mt-1 font-mono">deriving <%= wallet.gap_limit * 2 %> addresses from xpub</p>
+    </div>
+  <% else %>
+    <div class="grid md:grid-cols-2 gap-4">
+
+      <%# Receive — primary column %>
+      <div class="bg-zinc-900 border border-zinc-800 rounded overflow-hidden">
+        <div class="px-5 py-3 border-b border-zinc-800 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3L3 11M3 11h6M3 11V5"/>
+            </svg>
+            <span class="text-xs font-medium text-zinc-300 uppercase tracking-wide">Receive</span>
+          </div>
+          <span class="text-xs text-zinc-600 font-mono">m/84&rsquo;/0&rsquo;/0&rsquo;/0/i</span>
+        </div>
+
+        <div class="divide-y divide-zinc-800/50 max-h-[480px] overflow-y-auto">
+          <% receive_addresses.each do |a| %>
+            <div class="group flex items-center gap-3 px-5 py-2.5 <%= a.tx_count > 0 ? 'bg-emerald-500/5' : '' %>">
+              <span class="text-xs text-zinc-600 font-mono tabular-nums w-6 shrink-0"><%= a.index_at_branch %></span>
+              <span class="text-xs text-zinc-300 font-mono truncate flex-1 min-w-0"><%= a.address %></span>
+              <% if a.balance_sats > 0 %>
+                <span class="text-xs font-mono tabular-nums text-emerald-400 shrink-0">
+                  <%= format("%.8f", a.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>
+                </span>
+              <% elsif a.tx_count > 0 %>
+                <span class="text-xs font-mono tabular-nums text-zinc-600 shrink-0" title="Used, currently empty">
+                  <%= a.tx_count %>tx
+                </span>
+              <% elsif a.last_synced_at.nil? %>
+                <span class="text-xs font-mono text-zinc-700 shrink-0 animate-pulse">…</span>
+              <% end %>
+              <button
+                type="button"
+                onclick="navigator.clipboard.writeText('<%= a.address %>')"
+                title="Copy address"
+                class="shrink-0 opacity-0 group-hover:opacity-100 p-1 text-zinc-600 hover:text-zinc-300 rounded transition-all focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                aria-label="Copy <%= a.address %>">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="5" y="5" width="7" height="7" rx="1"/>
+                  <path stroke-linecap="round" d="M9 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v5a1 1 0 001 1h2"/>
+                </svg>
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Change — secondary column %>
+      <div class="bg-zinc-900 border border-zinc-800/60 rounded overflow-hidden opacity-90">
+        <div class="px-5 py-3 border-b border-zinc-800/60 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-zinc-500" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 11L11 3M11 3H5M11 3v6"/>
+            </svg>
+            <span class="text-xs font-medium text-zinc-500 uppercase tracking-wide">Change</span>
+          </div>
+          <span class="text-xs text-zinc-700 font-mono">m/84&rsquo;/0&rsquo;/0&rsquo;/1/i</span>
+        </div>
+
+        <div class="divide-y divide-zinc-800/30 max-h-[480px] overflow-y-auto">
+          <% change_addresses.each do |a| %>
+            <div class="group flex items-center gap-3 px-5 py-2.5">
+              <span class="text-xs text-zinc-700 font-mono tabular-nums w-6 shrink-0"><%= a.index_at_branch %></span>
+              <span class="text-xs text-zinc-500 font-mono truncate flex-1 min-w-0"><%= a.address %></span>
+              <% if a.balance_sats > 0 %>
+                <span class="text-xs font-mono tabular-nums text-emerald-400/80 shrink-0">
+                  <%= format("%.8f", a.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>
+                </span>
+              <% end %>
+              <button
+                type="button"
+                onclick="navigator.clipboard.writeText('<%= a.address %>')"
+                title="Copy address"
+                class="shrink-0 opacity-0 group-hover:opacity-100 p-1 text-zinc-700 hover:text-zinc-400 rounded transition-all focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                aria-label="Copy <%= a.address %>">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="5" y="5" width="7" height="7" rx="1"/>
+                  <path stroke-linecap="round" d="M9 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v5a1 1 0 001 1h2"/>
+                </svg>
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-xs text-zinc-700 mt-4 font-mono">
+      Showing all <%= wallet.gap_limit %> addresses per branch (gap limit). Re-run sync via the refresh icon next to the balance.
+    </p>
+  <% end %>
+</div>

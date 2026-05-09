@@ -17,29 +17,17 @@ class WalletsController < ApplicationController
   def create
     @wallet = Wallet.new(wallet_params)
     if @wallet.save
-      AddressDerivation.materialize_all(@wallet)
-      result = MempoolFetcher.sync_wallet(@wallet)
-      flash[:notice] = "Wallet added · synced #{result[:synced]} addresses · " \
-                       "#{format_btc(@wallet.balance_btc)} BTC"
+      WalletSyncJob.perform_later(@wallet)
+      flash[:notice] = "Wallet added — materializing & syncing in the background."
       redirect_to @wallet
     else
       render :new, status: :unprocessable_entity
     end
-  rescue StandardError => e
-    Rails.logger.error("[WalletsController#create] #{e.class}: #{e.message}\n#{e.backtrace.first(8).join("\n")}")
-    @wallet&.destroy
-    @wallet = Wallet.new(wallet_params)
-    @wallet.errors.add(:base, "Sync failed: #{e.message}")
-    render :new, status: :unprocessable_entity
   end
 
   def sync
-    result = MempoolFetcher.sync_wallet(@wallet)
-    if result[:failed].any?
-      flash[:alert] = "Synced #{result[:synced]} addresses · #{result[:failed].size} failed"
-    else
-      flash[:notice] = "Synced #{result[:synced]} addresses"
-    end
+    WalletSyncJob.perform_later(@wallet)
+    flash[:notice] = "Sync queued."
     redirect_to @wallet
   end
 
@@ -51,9 +39,5 @@ class WalletsController < ApplicationController
 
   def wallet_params
     params.require(:wallet).permit(:name, :xpub, :network, :gap_limit)
-  end
-
-  def format_btc(btc)
-    format("%.8f", btc).sub(/\.?0+$/, "")
   end
 end
