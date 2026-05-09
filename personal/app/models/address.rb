@@ -3,6 +3,7 @@ class Address < ApplicationRecord
   CHANGE_BRANCH  = 1
 
   belongs_to :wallet
+  has_many :utxos, dependent: :destroy
 
   validates :address, presence: true, uniqueness: true
   validates :branch, inclusion: { in: [RECEIVE_BRANCH, CHANGE_BRANCH] }

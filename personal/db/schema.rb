@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_09_130001) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_09_140002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,6 +44,30 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_09_130001) do
     t.index ["wallet_id"], name: "index_alert_events_on_wallet_id"
   end
 
+  create_table "usd_snapshots", force: :cascade do |t|
+    t.date "captured_on", null: false
+    t.decimal "price_usd", precision: 14, scale: 2, null: false
+    t.string "source", default: "coingecko", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["captured_on"], name: "index_usd_snapshots_on_captured_on", unique: true
+  end
+
+  create_table "utxos", force: :cascade do |t|
+    t.bigint "address_id", null: false
+    t.string "txid", null: false
+    t.integer "vout", null: false
+    t.bigint "value_sats", null: false
+    t.boolean "confirmed", default: false, null: false
+    t.integer "block_height"
+    t.datetime "fetched_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["address_id", "confirmed"], name: "index_utxos_on_address_id_and_confirmed"
+    t.index ["address_id"], name: "index_utxos_on_address_id"
+    t.index ["txid", "vout"], name: "index_utxos_on_txid_and_vout", unique: true
+  end
+
   create_table "wallets", force: :cascade do |t|
     t.string "name", null: false
     t.text "xpub", null: false
@@ -52,9 +76,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_09_130001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "ntfy_topic"
+    t.integer "fee_threshold_sat_vb"
+    t.datetime "last_fee_alert_at"
     t.index ["name"], name: "index_wallets_on_name", unique: true
   end
 
   add_foreign_key "addresses", "wallets"
   add_foreign_key "alert_events", "wallets"
+  add_foreign_key "utxos", "addresses"
 end

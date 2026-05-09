@@ -65,8 +65,13 @@
     </div>
 
     <div class="px-5 py-4">
-      <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Watched</div>
-      <div class="text-sm font-mono tabular-nums text-stone-500"><%= @wallet.addresses.count %>&thinsp;<span class="text-stone-400">addrs</span></div>
+      <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">UTXOs</div>
+      <div class="text-sm font-mono tabular-nums text-ink">
+        <%= @wallet.utxo_count %>
+        <% if (dust = @wallet.utxos.dust.count) > 0 %>
+          <span class="text-stone-400">(<%= dust %> dust)</span>
+        <% end %>
+      </div>
     </div>
 
     <div class="px-5 py-4">
@@ -134,6 +139,41 @@
                 <div class="text-xs text-stone-400 italic font-serif">no channel</div>
               <% end %>
             </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# UTXO map — what's actually spendable %>
+<% if @utxos.any? %>
+  <div class="mb-8">
+    <h2 class="font-sans font-medium text-sm text-ink mb-4">
+      UTXOs
+      <span class="font-mono text-stone-400 font-normal text-xs ml-1">(<%= @wallet.utxo_count %> total<%= ", #{@wallet.utxos.dust.count} dust" if @wallet.utxos.dust.count.positive? %>)</span>
+    </h2>
+    <div class="bg-cream border border-stone-200 rounded-xl overflow-hidden" style="box-shadow: 0 1px 3px rgba(26,22,18,0.04), 0 1px 2px rgba(26,22,18,0.06)">
+      <div class="divide-y divide-stone-100">
+        <% @utxos.each do |u| %>
+          <div class="px-5 py-2.5 flex items-center gap-3 <%= u.dust? ? 'bg-stone-50' : '' %>">
+            <span class="text-xs font-mono tabular-nums w-32 shrink-0 <%= u.value_sats > 0 ? 'text-ink' : 'text-stone-400' %>">
+              <%= format("%.8f", u.value_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>
+              <span class="text-stone-400">BTC</span>
+            </span>
+            <% if u.dust? %>
+              <span class="text-xs font-serif italic text-stone-500 shrink-0" title="costs more to spend than it's worth at typical fees">dust</span>
+            <% end %>
+            <% unless u.confirmed %>
+              <span class="text-xs font-mono text-orange-brand-darker italic shrink-0">mempool</span>
+            <% end %>
+            <span class="text-xs font-mono text-stone-500 truncate flex-1 min-w-0" title="<%= u.address.address %>">
+              <%= u.address.address %>
+            </span>
+            <a href="<%= u.mempool_url %>" target="_blank" rel="noopener"
+               class="text-xs font-mono text-stone-400 hover:text-ink shrink-0">
+              <%= u.short_txid %>
+            </a>
           </div>
         <% end %>
       </div>

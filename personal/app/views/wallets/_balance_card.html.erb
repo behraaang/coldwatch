@@ -31,6 +31,14 @@
         <%= number_with_delimiter(wallet.balance_sats) %> sats
       </span>
     </div>
+    <% if (usd = wallet.balance_usd) %>
+      <div class="mt-1 sm:text-right">
+        <span class="font-mono text-sm tabular-nums text-stone-600">
+          $<%= number_with_delimiter(usd.to_i) %>
+        </span>
+        <span class="font-serif italic text-xs text-stone-400">USD</span>
+      </div>
+    <% end %>
   <% else %>
     <%# Syncing state — calm, no pulse, editorial serif %>
     <div class="font-serif italic text-2xl text-stone-500 leading-none mt-1">

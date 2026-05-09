@@ -39,6 +39,7 @@ services:
       RAILS_ENV: development
       DATABASE_URL: postgres://coldwatch:devpass@db:5432/coldwatch_personal_dev
       REDIS_URL: redis://redis:6379/0
+      BOOTSTRAP_RECURRING_JOBS: "true"
 
   mempool_subscriber:
     build:

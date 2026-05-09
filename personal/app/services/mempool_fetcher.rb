@@ -89,4 +89,25 @@ class MempoolFetcher
     Rails.logger.warn("[MempoolFetcher] fetch_txs #{address}: #{e.class}: #{e.message}")
     nil
   end
+
+  # Fetch the current UTXO set for an address. Returns an Array of
+  # { txid, vout, value, status: { confirmed, block_height, ... } } hashes
+  # in mempool.space's schema, or nil on error.
+  def self.fetch_utxos(address, base:)
+    uri = URI("#{base}/address/#{address}/utxo")
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true,
+                               open_timeout: REQUEST_TIMEOUT_SECONDS,
+                               read_timeout: REQUEST_TIMEOUT_SECONDS) do |http|
+      req = Net::HTTP::Get.new(uri)
+      req["User-Agent"] = "coldwatch/0.1 (+https://github.com/behraaang/coldwatch)"
+      http.request(req)
+    end
+
+    return nil unless response.is_a?(Net::HTTPSuccess)
+
+    JSON.parse(response.body)
+  rescue StandardError => e
+    Rails.logger.warn("[MempoolFetcher] fetch_utxos #{address}: #{e.class}: #{e.message}")
+    nil
+  end
 end

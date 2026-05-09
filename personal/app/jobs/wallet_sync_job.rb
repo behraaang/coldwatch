@@ -19,6 +19,12 @@ class WalletSyncJob < ApplicationJob
 
     # Phase 2: fetch balances. ~200ms per address against mempool.space.
     MempoolFetcher.sync_wallet(wallet)
+
+    # Phase 3: fetch UTXO set per address (only the ones with activity)
+    wallet.addresses.used.find_each do |addr|
+      UtxoSyncer.sync_address(addr)
+    end
+
     broadcast_balance(wallet)
     broadcast_addresses(wallet)
   end

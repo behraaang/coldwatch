@@ -11,6 +11,7 @@ class Wallet < ApplicationRecord
 
   has_many :addresses, dependent: :destroy
   has_many :alert_events, dependent: :destroy
+  has_many :utxos, through: :addresses
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :xpub, presence: true
@@ -18,7 +19,20 @@ class Wallet < ApplicationRecord
   validates :gap_limit,
             numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 100 }
   validates :ntfy_topic, format: { with: NTFY_TOPIC_FORMAT }, allow_blank: true
+  validates :fee_threshold_sat_vb,
+            numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 1000 },
+            allow_nil: true
   validate :xpub_prefix_must_match_network
+
+  def utxo_count
+    utxos.count
+  end
+
+  def balance_usd
+    price = UsdSnapshot.latest_price
+    return nil if price.nil?
+    (balance_btc * price.to_f).round(2)
+  end
 
   def balance_sats
     addresses.sum(:balance_sats)
