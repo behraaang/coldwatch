@@ -9,6 +9,10 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
-  resources :wallets, only: [:index, :new, :create, :show]
+  resources :wallets, only: [:index, :new, :create, :show] do
+    member do
+      post :sync
+    end
+  end
   root "wallets#index"
 end

@@ -6,12 +6,34 @@ class Wallet < ApplicationRecord
     "testnet" => %w[vpub Vpub].freeze
   }.freeze
 
+  has_many :addresses, dependent: :destroy
+
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :xpub, presence: true
   validates :network, inclusion: { in: %w[mainnet testnet] }
   validates :gap_limit,
             numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 100 }
   validate :xpub_prefix_must_match_network
+
+  def balance_sats
+    addresses.sum(:balance_sats)
+  end
+
+  def balance_btc
+    balance_sats / 100_000_000.0
+  end
+
+  def total_tx_count
+    addresses.sum(:tx_count)
+  end
+
+  def last_synced_at
+    addresses.maximum(:last_synced_at)
+  end
+
+  def synced?
+    last_synced_at.present?
+  end
 
   private
 

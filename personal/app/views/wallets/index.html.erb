@@ -6,7 +6,6 @@
   </div>
   <%= link_to new_wallet_path,
         class: "flex items-center gap-1.5 px-4 py-2 bg-zinc-100 text-zinc-900 hover:bg-white text-sm font-medium rounded transition-colors" do %>
-    <%# Plus icon %>
     <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" d="M7 2v10M2 7h10"/>
     </svg>
@@ -23,17 +22,16 @@
           <%# Top row: name + chevron %>
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2.5">
-              <%# Status dot — amber until Day-3 watcher is live %>
-              <span class="h-2 w-2 rounded-full bg-amber-400/70 shrink-0"></span>
+              <% dot_color = wallet.synced? ? "bg-emerald-500" : "bg-amber-400/70" %>
+              <span class="h-2 w-2 rounded-full <%= dot_color %> shrink-0"></span>
               <span class="font-medium text-zinc-100 text-sm"><%= wallet.name %></span>
             </div>
-            <%# Chevron right %>
             <svg class="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 4l4 4-4 4"/>
             </svg>
           </div>
 
-          <%# Data row: meta tags %>
+          <%# Meta strip %>
           <div class="flex items-center gap-4 text-xs text-zinc-500 font-mono">
             <span class="uppercase tracking-wide"><%= wallet.network %></span>
             <span class="text-zinc-700">&middot;</span>
@@ -42,19 +40,23 @@
             <span>gap&nbsp;<%= wallet.gap_limit %></span>
           </div>
 
-          <%# Placeholder data row — will populate Day-3 %>
+          <%# Real data row %>
           <div class="mt-3 pt-3 border-t border-zinc-800/60 grid grid-cols-3 gap-3">
             <div>
               <div class="text-xs text-zinc-600 mb-0.5">Balance</div>
-              <div class="text-xs text-zinc-500 font-mono tabular-nums">— BTC</div>
+              <div class="text-xs font-mono tabular-nums <%= wallet.balance_sats > 0 ? 'text-zinc-100' : 'text-zinc-500' %>">
+                <%= format("%.8f", wallet.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %> BTC
+              </div>
             </div>
             <div>
-              <div class="text-xs text-zinc-600 mb-0.5">Last event</div>
-              <div class="text-xs text-zinc-500 font-mono">—</div>
+              <div class="text-xs text-zinc-600 mb-0.5">Used / total</div>
+              <div class="text-xs text-zinc-300 font-mono tabular-nums">
+                <%= wallet.addresses.used.count %> / <%= wallet.addresses.count %>
+              </div>
             </div>
             <div>
-              <div class="text-xs text-zinc-600 mb-0.5">UTXOs</div>
-              <div class="text-xs text-zinc-500 font-mono tabular-nums">—</div>
+              <div class="text-xs text-zinc-600 mb-0.5">Activity</div>
+              <div class="text-xs text-zinc-300 font-mono tabular-nums"><%= wallet.total_tx_count %> txs</div>
             </div>
           </div>
         </div>
@@ -63,10 +65,9 @@
   </div>
 
 <% else %>
-  <%# Intentional zero state — not sad, just precise %>
+  <%# Intentional zero state %>
   <div class="bg-zinc-900 border border-zinc-800 rounded">
     <div class="px-6 py-10 text-center">
-      <%# Shield / eye icon %>
       <div class="flex justify-center mb-5">
         <div class="p-3 bg-zinc-800 rounded-full">
           <svg class="w-6 h-6 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -90,7 +91,6 @@
       <% end %>
     </div>
 
-    <%# Feature strip %>
     <div class="border-t border-zinc-800 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-zinc-800">
       <div class="px-5 py-4">
         <div class="text-xs text-zinc-500 font-mono uppercase tracking-wide mb-1">Detection</div>
