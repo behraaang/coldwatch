@@ -10,6 +10,14 @@ class WalletsController < ApplicationController
     @change_addresses  = @wallet.addresses.change.ordered
     @alert_events      = @wallet.alert_events.recent.limit(10)
     @utxos             = @wallet.utxos.includes(:address).by_value.limit(20)
+
+    # Fee monitor live state: cache the mempool.space fees fetch for 60s
+    # so back-to-back show pages don't hammer the upstream.
+    if @wallet.fee_threshold_sat_vb
+      @current_fees = Rails.cache.fetch("mempool_fees/#{@wallet.network}", expires_in: 60.seconds) do
+        FeeFetcher.current(network: @wallet.network)
+      end
+    end
   end
 
   def new

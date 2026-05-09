@@ -89,6 +89,102 @@
   </div>
 </div>
 
+<%# Fee monitor card — only when threshold is configured %>
+<% if @wallet.fee_threshold_sat_vb %>
+  <% current = @current_fees&.dig(:fastestFee) %>
+  <% in_window = current && current <= @wallet.fee_threshold_sat_vb %>
+  <% in_cooldown = @wallet.last_fee_alert_at && @wallet.last_fee_alert_at > 1.hour.ago %>
+
+  <div class="mb-8">
+    <h2 class="font-sans font-medium text-sm text-ink mb-4">
+      Fee window
+      <% if in_window %>
+        <span class="ml-1 inline-flex items-center gap-1 text-xs font-mono text-sage uppercase tracking-wide">
+          <span class="h-1.5 w-1.5 rounded-full bg-sage"></span>open
+        </span>
+      <% else %>
+        <span class="ml-1 inline-flex items-center gap-1 text-xs font-mono text-stone-400 uppercase tracking-wide">
+          <span class="h-1.5 w-1.5 rounded-full bg-stone-400"></span>waiting
+        </span>
+      <% end %>
+    </h2>
+
+    <div class="bg-cream <%= in_window ? 'border border-sage/30' : 'border border-stone-200' %> rounded-xl overflow-hidden" style="box-shadow: 0 1px 3px rgba(26,22,18,0.04), 0 1px 2px rgba(26,22,18,0.06)">
+      <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
+
+        <%# Current fee %>
+        <div class="px-5 py-4">
+          <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Current</div>
+          <% if current %>
+            <div class="text-lg font-mono tabular-nums leading-none <%= in_window ? 'text-sage' : 'text-ink' %>">
+              <%= current %>
+              <span class="text-xs text-stone-400 font-mono">sat/vB</span>
+            </div>
+          <% else %>
+            <div class="text-sm font-serif italic text-stone-400">unavailable</div>
+          <% end %>
+        </div>
+
+        <%# Threshold %>
+        <div class="px-5 py-4">
+          <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Threshold</div>
+          <div class="text-lg font-mono tabular-nums text-ink leading-none">
+            <%= @wallet.fee_threshold_sat_vb %>
+            <span class="text-xs text-stone-400 font-mono">sat/vB</span>
+          </div>
+        </div>
+
+        <%# Last alert %>
+        <div class="px-5 py-4">
+          <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Last alert</div>
+          <% if @wallet.last_fee_alert_at %>
+            <div class="text-sm font-mono text-stone-600">
+              <%= time_ago_in_words(@wallet.last_fee_alert_at) %> ago
+            </div>
+            <% if in_cooldown %>
+              <div class="text-xs text-stone-400 font-serif italic mt-0.5">cooldown</div>
+            <% end %>
+          <% else %>
+            <div class="text-sm font-serif italic text-stone-400">never</div>
+          <% end %>
+        </div>
+
+        <%# Push channel %>
+        <div class="px-5 py-4">
+          <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Channel</div>
+          <% if @wallet.ntfy_topic.present? %>
+            <div class="text-sm font-mono text-sage flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-sage"></span>ntfy
+            </div>
+          <% else %>
+            <div class="text-xs font-serif italic text-rust">no ntfy topic</div>
+          <% end %>
+        </div>
+
+      </div>
+
+      <%# Status footer %>
+      <% if in_window && @wallet.ntfy_topic.present? %>
+        <div class="px-5 py-3 border-t border-sage/20 bg-sage/5 text-xs text-sage font-mono">
+          <% if in_cooldown %>
+            Window open. Already pushed within the last hour — cooldown active.
+          <% else %>
+            Window open. Next FeeMonitorJob run will push an alert.
+          <% end %>
+        </div>
+      <% elsif in_window %>
+        <div class="px-5 py-3 border-t border-stone-100 bg-stone-50 text-xs text-stone-500 font-mono">
+          Window open, but no ntfy topic set — alert won't fire. Add one to enable.
+        </div>
+      <% end %>
+    </div>
+
+    <p class="text-xs text-stone-400 mt-2 font-mono">
+      FeeMonitorJob runs every 5 minutes. Cache TTL on the current-fee read is 60s.
+    </p>
+  </div>
+<% end %>
+
 <%# Alarm history — recent outgoing-tx detections %>
 <% if @alert_events.any? %>
   <div class="mb-8">
