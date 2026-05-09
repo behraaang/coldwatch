@@ -63,7 +63,7 @@ The architectural decisions log is in `docs/build-plan.md`. Always update that f
 
 - **Tailwind v4 writes its build output to `app/assets/builds/tailwind.css`** (NOT `application.css`). Layout's stylesheet_link_tag must reference `tailwind`, not `application`. The install generator handles this.
 
-- **Test data:** the BIP84 spec test vector zpub is well-known: `zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs`. Its first receive is `bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu`. Use this for local testing; never paste the user's real mainnet zpub into runner scripts that get logged.
+- **Test data:** for local testing, use the **BIP84 spec test vector zpub** — it's the well-known one derived from the mnemonic `"abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"`. The zpub is in `docs/sparrow-setup.md` (the only repo location the xpub-guard's grep exclusion allows). Never paste the user's real mainnet zpub into runner scripts that get logged.
 
 ## How to run / develop
 
