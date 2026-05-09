@@ -1,45 +1,54 @@
+<%# ================================================================
+    New wallet — editorial form
+    xpub textarea is the visual hero
+    Bitcoin-orange privacy banner (warmer than amber)
+    ================================================================ %>
+
 <%# Breadcrumb %>
 <div class="mb-8">
   <%= link_to wallets_path,
-        class: "inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 font-mono transition-colors" do %>
-    <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M8 2L4 6l4 4"/>
+        class: "inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-ink font-mono transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded" do %>
+    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M15.75 19.5L8.25 12l7.5-7.5"/>
     </svg>
     All wallets
   <% end %>
 </div>
 
+<%# Page title %>
 <div class="mb-8">
-  <h1 class="text-3xl font-semibold tracking-tight text-zinc-100">Add wallet</h1>
-  <p class="text-sm text-zinc-500 mt-1">Paste your xpub once. coldwatch derives every address and watches them all.</p>
+  <h1 class="font-serif text-4xl text-ink leading-tight mb-2">
+    Add a wallet<em class="not-italic">,</em> <em>once.</em>
+  </h1>
+  <p class="text-sm text-stone-600 leading-relaxed max-w-lg">
+    Paste your extended public key. coldwatch derives every address and watches them all &mdash; no keys, no signing, no risk.
+  </p>
 </div>
 
-<%# Privacy warning — elevated prominence %>
-<div class="mb-8 flex items-start gap-3 px-4 py-4 bg-amber-500/10 border border-amber-500/30 rounded">
-  <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M8 1.5L14.5 13H1.5L8 1.5z"/>
-    <path stroke-linecap="round" d="M8 6v3.5"/>
-    <circle cx="8" cy="11.5" r="0.5" fill="currentColor" stroke="none"/>
+<%# Privacy banner — Bitcoin-orange, warmer than the old amber %>
+<div class="mb-8 flex items-start gap-3 px-5 py-4 bg-orange-brand/8 border border-orange-brand/25 rounded-xl">
+  <%# Alert triangle — inline SVG %>
+  <svg class="w-4 h-4 text-orange-brand-darker mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
   </svg>
   <div>
-    <p class="text-xs font-medium text-amber-400 mb-1">Read the threat model before pasting a real xpub</p>
-    <p class="text-xs text-amber-400/70 leading-relaxed">
+    <p class="text-xs font-medium text-orange-brand-darker mb-1">Read the threat model before pasting a real xpub</p>
+    <p class="text-xs text-orange-brand-darker/70 leading-relaxed">
       An xpub cannot spend funds &mdash; but it exposes every address and transaction you have ever made or will make, forever.
-      The xpub is encrypted at rest. Never paste a private key or seed phrase into any web form.
+      The xpub is encrypted at rest with AES-256-GCM. Never paste a private key or seed phrase into any web form.
     </p>
   </div>
 </div>
 
 <%= form_with model: @wallet, class: "space-y-6 max-w-2xl" do |f| %>
+
   <% if @wallet.errors.any? %>
-    <div class="px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded flex items-start gap-2">
-      <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M8 1.5L14.5 13H1.5L8 1.5z"/>
-        <path stroke-linecap="round" d="M8 6v3.5"/>
-        <circle cx="8" cy="11.5" r="0.5" fill="currentColor" stroke="none"/>
+    <div class="px-5 py-4 bg-rust/8 border border-rust/25 text-rust text-sm rounded-xl flex items-start gap-2.5">
+      <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
       </svg>
       <div>
-        <p class="font-medium mb-1">
+        <p class="font-medium mb-1.5">
           <%= pluralize(@wallet.errors.count, "error") %> prevented saving:
         </p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
@@ -53,65 +62,65 @@
 
   <%# Name field %>
   <div>
-    <%= f.label :name, class: "block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2" %>
+    <%= f.label :name, class: "block text-xs font-medium text-stone-600 uppercase tracking-wider mb-2" %>
     <%= f.text_field :name,
           placeholder: "e.g. Ledger main",
-          class: "w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600/30 transition-colors" %>
+          class: "w-full bg-cream border border-stone-200 rounded-lg px-4 py-2.5 text-sm text-ink placeholder:text-stone-400 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-brand/30 transition-colors" %>
   </div>
 
   <%# Network field %>
   <div>
-    <%= f.label :network, class: "block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2" %>
+    <%= f.label :network, class: "block text-xs font-medium text-stone-600 uppercase tracking-wider mb-2" %>
     <%= f.select :network, [["mainnet", "mainnet"], ["testnet", "testnet"]], {},
-          class: "w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2.5 text-sm text-zinc-100 focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600/30 transition-colors" %>
-    <p class="text-xs text-zinc-600 mt-1.5 font-mono">mainnet for real funds &middot; testnet for testing</p>
+          class: "w-full bg-cream border border-stone-200 rounded-lg px-4 py-2.5 text-sm text-ink focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-brand/30 transition-colors" %>
+    <p class="text-xs text-stone-400 mt-1.5 font-mono">mainnet for real funds &middot; testnet for testing</p>
   </div>
 
-  <%# xpub field — the most important field, given visual weight %>
+  <%# xpub field — visual hero of the form %>
   <div>
     <div class="flex items-center justify-between mb-2">
-      <%= f.label :xpub, class: "block text-xs font-medium text-zinc-400 uppercase tracking-wider" do %>
+      <%= f.label :xpub, class: "block text-xs font-medium text-stone-600 uppercase tracking-wider" do %>
         Extended public key
-        <span class="ml-1 text-zinc-600 normal-case tracking-normal">(zpub / xpub / vpub)</span>
+        <span class="ml-1 text-stone-400 normal-case tracking-normal">(zpub / xpub / vpub)</span>
       <% end %>
-      <span class="text-xs text-zinc-600 font-mono">BIP84</span>
+      <span class="text-xs text-stone-400 font-mono">BIP84</span>
     </div>
 
-    <%= f.text_area :xpub, rows: 5,
-          class: "w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-3 text-zinc-200 font-mono text-xs leading-relaxed placeholder:text-zinc-700 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 transition-colors resize-none",
-          placeholder: "zpub6rFR7y4Q2Aij..." %>
+    <%= f.text_area :xpub, rows: 6,
+          class: "w-full bg-cream border border-stone-200 rounded-xl px-5 py-4 text-ink font-mono text-xs leading-relaxed placeholder:text-stone-400 placeholder:italic focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-brand/30 transition-colors resize-none tracking-wide",
+          placeholder: "zpub6rFR7y4Q2Aij…" %>
 
-    <div class="mt-2 flex items-start gap-2">
-      <svg class="w-3.5 h-3.5 text-zinc-600 mt-0.5 shrink-0" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="7" cy="7" r="5.5"/>
-        <path stroke-linecap="round" d="M7 6.5v4"/>
-        <circle cx="7" cy="4.5" r="0.5" fill="currentColor" stroke="none"/>
+    <div class="mt-2.5 flex items-start gap-2">
+      <%# Info icon %>
+      <svg class="w-3.5 h-3.5 text-stone-400 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
       </svg>
-      <p class="text-xs text-zinc-600 leading-relaxed">
-        Watch-only &mdash; coldwatch cannot sign or spend. The xpub is encrypted at rest using AES-256-GCM.
-        Export it from Ledger Live, Sparrow, or any BIP84 wallet under <span class="font-mono">Account &rarr; Extended public key</span>.
+      <p class="text-xs text-stone-400 leading-relaxed">
+        Watch-only &mdash; coldwatch cannot sign or spend. Encrypted at rest with AES-256-GCM.
+        Export from Ledger Live, Sparrow, or any BIP84 wallet under <span class="font-mono">Account &rarr; Extended public key</span>.
       </p>
     </div>
   </div>
 
   <%# Gap limit field %>
   <div>
-    <%= f.label :gap_limit, class: "block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2" %>
+    <%= f.label :gap_limit, class: "block text-xs font-medium text-stone-600 uppercase tracking-wider mb-2" %>
     <div class="flex items-center gap-3">
       <%= f.number_field :gap_limit, min: 1, max: 100,
-            class: "w-28 bg-zinc-900 border border-zinc-800 rounded px-3 py-2.5 text-sm text-zinc-100 font-mono tabular-nums focus:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600/30 transition-colors" %>
-      <span class="text-xs text-zinc-600">addresses per branch (receive + change)</span>
+            class: "w-28 bg-cream border border-stone-200 rounded-lg px-4 py-2.5 text-sm text-ink font-mono tabular-nums focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-brand/30 transition-colors" %>
+      <span class="text-xs text-stone-500">addresses per branch (receive + change)</span>
     </div>
-    <p class="text-xs text-zinc-600 mt-1.5 leading-relaxed">
+    <p class="text-xs text-stone-400 mt-1.5 leading-relaxed">
       Default 20 matches Ledger Live. Increase only if you&rsquo;ve used more than 20 consecutive receive addresses without a gap.
     </p>
   </div>
 
   <%# Actions %>
-  <div class="flex items-center gap-4 pt-2 border-t border-zinc-800">
+  <div class="flex items-center gap-4 pt-4 border-t border-stone-100">
     <%= f.submit "Add wallet",
-          class: "px-5 py-2.5 bg-zinc-100 text-zinc-900 hover:bg-white text-sm font-medium rounded cursor-pointer transition-colors" %>
+          class: "px-5 py-2.5 bg-orange-brand text-cream text-sm font-medium rounded-lg cursor-pointer hover:bg-orange-brand-darker transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:ring-offset-2 focus:ring-offset-paper" %>
     <%= link_to "Cancel", wallets_path,
-          class: "text-sm text-zinc-500 hover:text-zinc-300 transition-colors" %>
+          class: "text-sm text-stone-500 hover:text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded" %>
   </div>
+
 <% end %>

@@ -1,1 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @import "tailwindcss";
+
+@theme {
+  --color-paper: #FAF7F2;
+  --color-cream: #FFFFFF;
+  --color-ink: #1A1612;
+  --color-sage: #52796F;
+  --color-rust: #A2402F;
+  --color-petrol: #1B4D5A;
+  --color-orange-brand: #F7931A;
+  --color-orange-brand-darker: #D97706;
+
+  --color-stone-100: #F5F2EE;
+  --color-stone-200: #E8E2DA;
+  --color-stone-300: #D4CBC0;
+  --color-stone-400: #BFB4A6;
+  --color-stone-500: #A8A29E;
+  --color-stone-600: #8C847C;
+  --color-stone-700: #6B6560;
+  --color-stone-800: #4A4541;
+  --color-stone-900: #2E2B27;
+
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --shadow-soft: 0 1px 3px rgba(26,22,18,0.04), 0 1px 2px rgba(26,22,18,0.06);
+  --shadow-soft-md: 0 4px 12px rgba(26,22,18,0.06), 0 2px 4px rgba(26,22,18,0.04);
+  --shadow-soft-hover: 0 6px 20px rgba(26,22,18,0.08), 0 2px 6px rgba(26,22,18,0.06);
+}
+
+/* Base overrides */
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular nums on all mono */
+.font-mono {
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Inter single-story a */
+.font-sans {
+  font-feature-settings: 'ss01' 1;
+}

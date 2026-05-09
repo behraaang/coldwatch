@@ -1,30 +1,44 @@
-<%# Balance card — Turbo-Stream-targeted; replaced when WalletSyncJob completes. %>
+<%# Balance card — Turbo-Stream-targeted; replaced when WalletSyncJob completes.
+    Syncing state: calm italic serif, no obnoxious pulse.
+    Final state: large mono numeric, BTC label in serif italic stone. %>
 <div id="<%= dom_id(wallet, :balance_card) %>"
-     class="sm:text-right bg-zinc-900 border border-zinc-800 rounded px-5 py-3 min-w-[180px]">
-  <div class="flex items-center justify-between sm:justify-end gap-3 mb-1">
-    <span class="text-xs text-zinc-600 uppercase tracking-wide font-mono">Balance</span>
+     class="bg-cream border border-stone-200 rounded-xl px-6 py-4 min-w-[200px] sm:text-right"
+     style="box-shadow: 0 1px 3px rgba(26,22,18,0.04), 0 1px 2px rgba(26,22,18,0.06)">
+
+  <%# Header row: label + sync button %>
+  <div class="flex items-center justify-between sm:justify-end gap-3 mb-2">
+    <span class="text-xs text-stone-500 uppercase tracking-wide font-mono">Balance</span>
+    <%# Sync button — Bitcoin orange, 200ms rotate on press %>
     <%= button_to sync_wallet_path(wallet), method: :post, form_class: "inline",
-          class: "text-zinc-600 hover:text-zinc-300 transition-colors p-0.5",
-          title: "Sync now" do %>
-      <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M2 7a5 5 0 019-3l1 1M12 7a5 5 0 01-9 3l-1-1M11 2v3h-3M3 12V9h3"/>
+          class: "text-orange-brand hover:text-orange-brand-darker transition-colors p-0.5 focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded",
+          title: "Sync now",
+          "aria-label": "Sync wallet now" do %>
+      <%# Arrow-clockwise icon %>
+      <svg class="w-4 h-4 transition-transform duration-200 active:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
       </svg>
     <% end %>
   </div>
 
   <% if wallet.synced? %>
-    <div class="text-2xl font-mono tabular-nums tracking-tight <%= wallet.balance_sats > 0 ? 'text-zinc-100' : 'text-zinc-500' %>">
-      <%= format("%.8f", wallet.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %> <span class="text-sm text-zinc-500">BTC</span>
+    <%# Numeric hero %>
+    <div class="font-mono text-5xl tabular-nums tracking-tight leading-none <%= wallet.balance_sats > 0 ? 'text-ink' : 'text-stone-400' %>">
+      <%= format("%.8f", wallet.balance_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>
     </div>
-    <div class="text-xs text-zinc-700 font-mono tabular-nums mt-0.5">
-      <%= number_with_delimiter(wallet.balance_sats) %> sats
+    <div class="mt-1.5 flex items-baseline gap-2 sm:justify-end">
+      <span class="font-serif italic text-sm text-stone-500">BTC</span>
+      <span class="font-mono text-xs tabular-nums text-stone-400">
+        <%= number_with_delimiter(wallet.balance_sats) %> sats
+      </span>
     </div>
   <% else %>
-    <div class="text-2xl font-mono tabular-nums tracking-tight text-zinc-500">
-      <span class="animate-pulse">Syncing&hellip;</span>
+    <%# Syncing state — calm, no pulse, editorial serif %>
+    <div class="font-serif italic text-2xl text-stone-500 leading-none mt-1">
+      Syncing.
     </div>
-    <div class="text-xs text-zinc-700 font-mono tabular-nums mt-0.5">
+    <div class="mt-1.5 font-mono text-xs text-stone-400">
       &mdash; sats
     </div>
   <% end %>
+
 </div>

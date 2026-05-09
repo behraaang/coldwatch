@@ -1,61 +1,83 @@
-<%# Subscribe to live updates from WalletSyncJob (and future MempoolSocketWorker) %>
+<%# ================================================================
+    Wallet show — editorial-meets-financial-tooling
+    Serif italic page title, mono numeric hero, bento stats strip
+    turbo_stream_from must remain for live updates
+    ================================================================ %>
+
+<%# Live update subscription — Day 4 wiring, must stay %>
 <%= turbo_stream_from @wallet %>
 
 <%# Breadcrumb %>
 <div class="mb-8">
   <%= link_to wallets_path,
-        class: "inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 font-mono transition-colors" do %>
-    <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M8 2L4 6l4 4"/>
+        class: "inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-ink font-mono transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded" do %>
+    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M15.75 19.5L8.25 12l7.5-7.5"/>
     </svg>
     All wallets
   <% end %>
 </div>
 
-<%# Wallet identity + balance row %>
-<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+<%# Wallet identity row — title + balance card side by side on sm+ %>
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
+
+  <%# Left: title + meta %>
   <div>
-    <div class="flex items-center gap-2.5 mb-1">
-      <% dot_color = @wallet.synced? ? "bg-emerald-500" : "bg-amber-400/70" %>
-      <span class="h-2.5 w-2.5 rounded-full <%= dot_color %> shrink-0"></span>
-      <h1 class="text-3xl font-semibold tracking-tight text-zinc-100"><%= @wallet.name %></h1>
+    <div class="flex items-center gap-2.5 mb-1.5">
+      <% if @wallet.synced? %>
+        <span class="h-2.5 w-2.5 rounded-full bg-sage shrink-0" title="Synced" aria-label="Synced"></span>
+      <% else %>
+        <span class="h-2.5 w-2.5 rounded-full bg-orange-brand shrink-0 animate-pulse" title="Syncing" aria-label="Syncing"></span>
+      <% end %>
+      <h1 class="font-serif italic text-4xl text-ink leading-tight"><%= @wallet.name %></h1>
     </div>
-    <div class="flex items-center gap-3 text-xs text-zinc-500 font-mono ml-5">
-      <span class="uppercase"><%= @wallet.network %></span>
-      <span class="text-zinc-700">&middot;</span>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-500 font-mono ml-5">
+      <span class="uppercase tracking-wide"><%= @wallet.network %></span>
+      <span class="text-stone-300">&middot;</span>
       <span>BIP84 Native SegWit</span>
-      <span class="text-zinc-700">&middot;</span>
-      <span>gap&nbsp;<%= @wallet.gap_limit %></span>
+      <span class="text-stone-300">&middot;</span>
+      <span>gap&thinsp;<%= @wallet.gap_limit %></span>
       <% if @wallet.last_synced_at %>
-        <span class="text-zinc-700">&middot;</span>
+        <span class="text-stone-300">&middot;</span>
         <span>synced <%= time_ago_in_words(@wallet.last_synced_at) %> ago</span>
       <% end %>
     </div>
   </div>
 
+  <%# Right: balance card (Turbo-Stream targeted) %>
   <%= render "balance_card", wallet: @wallet %>
 </div>
 
-<%# Stats strip — static snapshot, refreshes on full-page reload %>
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-zinc-800 border border-zinc-800 rounded overflow-hidden mb-8">
-  <div class="bg-zinc-900 px-4 py-3">
-    <div class="text-xs text-zinc-600 font-mono uppercase tracking-wide mb-1">Activity</div>
-    <div class="text-sm font-mono tabular-nums text-zinc-300"><%= @wallet.total_tx_count %> txs</div>
-  </div>
-  <div class="bg-zinc-900 px-4 py-3">
-    <div class="text-xs text-zinc-600 font-mono uppercase tracking-wide mb-1">Used addresses</div>
-    <div class="text-sm font-mono tabular-nums text-zinc-300"><%= @wallet.addresses.used.count %> / <%= @wallet.addresses.count %></div>
-  </div>
-  <div class="bg-zinc-900 px-4 py-3">
-    <div class="text-xs text-zinc-600 font-mono uppercase tracking-wide mb-1">Addresses watched</div>
-    <div class="text-sm font-mono tabular-nums text-zinc-500"><%= @wallet.addresses.count %></div>
-  </div>
-  <div class="bg-zinc-900 px-4 py-3">
-    <div class="text-xs text-zinc-600 font-mono uppercase tracking-wide mb-1">Alarm</div>
-    <div class="text-xs font-mono text-zinc-600">not active</div>
+<%# Stats strip — 4-cell bento, cream bg, stone-200 dividers %>
+<div class="bg-cream border border-stone-200 rounded-xl overflow-hidden mb-8" style="box-shadow: 0 1px 3px rgba(26,22,18,0.04), 0 1px 2px rgba(26,22,18,0.06)">
+  <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-stone-100">
+
+    <div class="px-5 py-4">
+      <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Activity</div>
+      <div class="text-sm font-mono tabular-nums text-ink"><%= @wallet.total_tx_count %>&thinsp;<span class="text-stone-400">txs</span></div>
+    </div>
+
+    <div class="px-5 py-4">
+      <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Used / total</div>
+      <div class="text-sm font-mono tabular-nums text-ink">
+        <%= @wallet.addresses.used.count %>&thinsp;<span class="text-stone-400">/&thinsp;<%= @wallet.addresses.count %></span>
+      </div>
+    </div>
+
+    <div class="px-5 py-4">
+      <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Watched</div>
+      <div class="text-sm font-mono tabular-nums text-stone-500"><%= @wallet.addresses.count %>&thinsp;<span class="text-stone-400">addrs</span></div>
+    </div>
+
+    <div class="px-5 py-4">
+      <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Alarm</div>
+      <div class="text-xs font-mono text-stone-400 font-serif italic">not active</div>
+    </div>
+
   </div>
 </div>
 
+<%# Addresses panel (Turbo-Stream targeted) %>
 <%= render "addresses_panel",
       wallet: @wallet,
       receive_addresses: @receive_addresses,
