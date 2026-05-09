@@ -115,6 +115,22 @@
     </p>
   </div>
 
+  <%# ntfy topic — the alarm channel %>
+  <div>
+    <div class="flex items-center justify-between mb-2">
+      <%= f.label :ntfy_topic, "Alarm channel", class: "block text-xs font-medium text-stone-600 uppercase tracking-wider" %>
+      <span class="text-xs text-stone-400 font-mono">optional</span>
+    </div>
+    <%= f.text_field :ntfy_topic,
+          placeholder: "coldwatch-yourname-r4nd0m",
+          class: "w-full bg-cream border border-stone-200 rounded-lg px-4 py-2.5 text-sm text-ink font-mono placeholder:text-stone-400 placeholder:italic focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-brand/30 transition-colors" %>
+    <p class="text-xs text-stone-400 mt-1.5 leading-relaxed">
+      A secret <a href="https://ntfy.sh" target="_blank" rel="noopener" class="text-orange-brand-darker hover:underline">ntfy.sh</a> topic name.
+      Install the ntfy app on your phone and subscribe to the same topic. coldwatch posts an alarm there
+      the moment any outgoing transaction is detected. Encrypted at rest. Leave blank to disable push alerts.
+    </p>
+  </div>
+
   <%# Actions %>
   <div class="flex items-center gap-4 pt-4 border-t border-stone-100">
     <%= f.submit "Add wallet",

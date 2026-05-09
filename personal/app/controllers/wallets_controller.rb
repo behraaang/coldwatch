@@ -8,6 +8,7 @@ class WalletsController < ApplicationController
   def show
     @receive_addresses = @wallet.addresses.receive.ordered
     @change_addresses  = @wallet.addresses.change.ordered
+    @alert_events      = @wallet.alert_events.recent.limit(10)
   end
 
   def new
@@ -38,6 +39,6 @@ class WalletsController < ApplicationController
   end
 
   def wallet_params
-    params.require(:wallet).permit(:name, :xpub, :network, :gap_limit)
+    params.require(:wallet).permit(:name, :xpub, :network, :gap_limit, :ntfy_topic)
   end
 end

@@ -68,4 +68,25 @@ class MempoolFetcher
     Rails.logger.warn("[MempoolFetcher] #{address}: #{e.class}: #{e.message}")
     nil
   end
+
+  # Fetch the recent tx list for an address. Returns an Array of tx hashes
+  # (in mempool.space's schema: txid, vin[], vout[], status{}) or nil on error.
+  # Used by OutgoingTxDetector to classify direction.
+  def self.fetch_txs(address, base:)
+    uri = URI("#{base}/address/#{address}/txs")
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true,
+                               open_timeout: REQUEST_TIMEOUT_SECONDS,
+                               read_timeout: REQUEST_TIMEOUT_SECONDS) do |http|
+      req = Net::HTTP::Get.new(uri)
+      req["User-Agent"] = "coldwatch/0.1 (+https://github.com/behraaang/coldwatch)"
+      http.request(req)
+    end
+
+    return nil unless response.is_a?(Net::HTTPSuccess)
+
+    JSON.parse(response.body)
+  rescue StandardError => e
+    Rails.logger.warn("[MempoolFetcher] fetch_txs #{address}: #{e.class}: #{e.message}")
+    nil
+  end
 end

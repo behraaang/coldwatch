@@ -155,6 +155,10 @@ class MempoolSubscriber
     )
 
     broadcast_wallet_update(addr.wallet)
+
+    # Day 5: classify the new tx and fire the alarm if outgoing.
+    # Async via Sidekiq so the WS reactor stays unblocked.
+    AlarmDetectionJob.perform_later(addr.id)
   end
 
   def self.broadcast_wallet_update(wallet)

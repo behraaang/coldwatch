@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_09_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_09_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,6 +29,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_09_100000) do
     t.index ["wallet_id"], name: "index_addresses_on_wallet_id"
   end
 
+  create_table "alert_events", force: :cascade do |t|
+    t.bigint "wallet_id", null: false
+    t.string "txid", null: false
+    t.string "direction", null: false
+    t.bigint "amount_sats"
+    t.boolean "confirmed", default: false, null: false
+    t.integer "block_height"
+    t.datetime "dispatched_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dispatched_at"], name: "index_alert_events_on_dispatched_at"
+    t.index ["wallet_id", "txid"], name: "index_alert_events_on_wallet_id_and_txid", unique: true
+    t.index ["wallet_id"], name: "index_alert_events_on_wallet_id"
+  end
+
   create_table "wallets", force: :cascade do |t|
     t.string "name", null: false
     t.text "xpub", null: false
@@ -36,8 +51,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_09_100000) do
     t.integer "gap_limit", default: 20, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "ntfy_topic"
     t.index ["name"], name: "index_wallets_on_name", unique: true
   end
 
   add_foreign_key "addresses", "wallets"
+  add_foreign_key "alert_events", "wallets"
 end

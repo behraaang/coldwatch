@@ -71,11 +71,75 @@
 
     <div class="px-5 py-4">
       <div class="text-xs text-stone-500 font-mono uppercase tracking-wide mb-1.5">Alarm</div>
-      <div class="text-xs font-mono text-stone-400 font-serif italic">not active</div>
+      <% if @wallet.ntfy_topic.present? %>
+        <div class="text-sm font-mono text-sage flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-sage"></span>
+          armed
+        </div>
+      <% else %>
+        <div class="text-xs font-serif italic text-stone-400">not configured</div>
+      <% end %>
     </div>
 
   </div>
 </div>
+
+<%# Alarm history — recent outgoing-tx detections %>
+<% if @alert_events.any? %>
+  <div class="mb-8">
+    <h2 class="font-sans font-medium text-sm text-ink mb-4">
+      Alarm log
+      <span class="font-mono text-stone-400 font-normal text-xs ml-1">(<%= @wallet.alert_events.count %> total)</span>
+    </h2>
+    <div class="bg-cream border border-rust/20 rounded-xl overflow-hidden" style="box-shadow: 0 1px 3px rgba(162,64,47,0.06), 0 1px 2px rgba(26,22,18,0.05)">
+      <div class="divide-y divide-stone-100">
+        <% @alert_events.each do |event| %>
+          <div class="px-5 py-3 flex items-center gap-4">
+            <%# Direction icon — rust-colored arrow-up-right for outgoing %>
+            <div class="shrink-0 p-1.5 bg-rust/10 rounded-lg">
+              <svg class="w-3.5 h-3.5 text-rust" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/>
+              </svg>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-xs font-medium text-rust uppercase tracking-wide">Outgoing</span>
+                <% if event.confirmed %>
+                  <span class="text-xs text-stone-400 font-mono">confirmed @ <%= event.block_height %></span>
+                <% else %>
+                  <span class="text-xs text-orange-brand-darker font-mono italic">unconfirmed (mempool)</span>
+                <% end %>
+              </div>
+              <div class="flex items-center gap-3 text-xs">
+                <% if event.amount_btc %>
+                  <span class="font-mono tabular-nums text-ink">
+                    <%= format("%.8f", event.amount_btc).sub(/0+$/, "").sub(/\.$/, ".0") %>&thinsp;<span class="text-stone-400">BTC</span>
+                  </span>
+                  <span class="text-stone-300">&middot;</span>
+                <% end %>
+                <a href="<%= event.mempool_url %>" target="_blank" rel="noopener"
+                   class="font-mono text-stone-500 hover:text-ink transition-colors truncate">
+                  <%= event.short_txid %>
+                </a>
+              </div>
+            </div>
+
+            <div class="shrink-0 text-right">
+              <% if event.dispatched_at %>
+                <div class="text-xs text-stone-400 font-mono"><%= time_ago_in_words(event.dispatched_at) %> ago</div>
+                <div class="text-xs text-sage font-mono">pushed</div>
+              <% else %>
+                <div class="text-xs text-stone-400 font-mono"><%= time_ago_in_words(event.created_at) %> ago</div>
+                <div class="text-xs text-stone-400 italic font-serif">no channel</div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
 
 <%# Addresses panel (Turbo-Stream targeted) %>
 <%= render "addresses_panel",
