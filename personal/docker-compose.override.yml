@@ -40,6 +40,21 @@ services:
       DATABASE_URL: postgres://coldwatch:devpass@db:5432/coldwatch_personal_dev
       REDIS_URL: redis://redis:6379/0
 
+  mempool_subscriber:
+    build:
+      dockerfile: Dockerfile.dev
+    env_file:
+      - path: .env.development
+        required: false
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+    environment:
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "true"
+      DATABASE_URL: postgres://coldwatch:devpass@db:5432/coldwatch_personal_dev
+      REDIS_URL: redis://redis:6379/0
+
   db:
     environment:
       POSTGRES_USER: coldwatch
