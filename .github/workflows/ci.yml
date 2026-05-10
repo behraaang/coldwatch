@@ -62,6 +62,12 @@ jobs:
       # fresh CI postgres they do not, and creating them per worker is not
       # worth the speed-up for ~120 tests that finish in ~10s sequentially.
       PARALLEL_WORKERS: 1
+      # ActiveRecord encryption keys are read in config/application.rb at boot,
+      # so they must exist in the OS env before Rails loads — earlier than
+      # test_helper runs. Test-only fake keys; they have no security value.
+      RAILS_ENCRYPTION_PRIMARY_KEY: test_primary_key_aaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      RAILS_ENCRYPTION_DETERMINISTIC_KEY: test_deterministic_key_aaaaaaaaaaaaaaaaaaaaaaa
+      RAILS_ENCRYPTION_KEY_DERIVATION_SALT: test_derivation_salt_aaaaaaaaaaaaaaaaaaaaaaaaa
 
     steps:
       - uses: actions/checkout@v4

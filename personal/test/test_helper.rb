@@ -1,12 +1,11 @@
 ENV["RAILS_ENV"] ||= "test"
 
-# Set test-only ActiveRecord encryption keys before the Rails environment
-# boots, so models that declare `encrypts :xpub` etc. can read/write
-# encrypted columns under `bin/rails test` without a real master.key.
-# These values exist solely for the test suite and have no security value.
-ENV["RAILS_ENCRYPTION_PRIMARY_KEY"]         ||= "test_primary_key_aaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-ENV["RAILS_ENCRYPTION_DETERMINISTIC_KEY"]   ||= "test_deterministic_key_aaaaaaaaaaaaaaaaaaaaaaa"
-ENV["RAILS_ENCRYPTION_KEY_DERIVATION_SALT"] ||= "test_derivation_salt_aaaaaaaaaaaaaaaaaaaaaaaaa"
+# ActiveRecord encryption keys must already be present in the OS env when
+# Rails boots (config/application.rb reads them eagerly). `bin/rails test`
+# loads Rails before this file runs, so setting them here would be too late.
+# - Local docker:  set via .env.development on the web container.
+# - CI:           set via .github/workflows/ci.yml env block.
+# - Bare host:    export them yourself (test-only fake values are fine).
 
 require_relative "../config/environment"
 require "rails/test_help"
