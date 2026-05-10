@@ -57,6 +57,11 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://coldwatch:postgres@localhost:5432/coldwatch_personal_test
+      # Disable Minitest parallelization in CI. With workers > 1 Rails appends
+      # -0/-1/... to the DB name and expects each per-worker DB to exist; on a
+      # fresh CI postgres they do not, and creating them per worker is not
+      # worth the speed-up for ~120 tests that finish in ~10s sequentially.
+      PARALLEL_WORKERS: 1
 
     steps:
       - uses: actions/checkout@v4
