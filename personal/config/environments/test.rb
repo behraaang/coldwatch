@@ -64,4 +64,9 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Use the in-memory ActiveJob test adapter so tests can use
+  # assert_enqueued_with / perform_enqueued_jobs without requiring a
+  # running Sidekiq + Redis. Production stays on :sidekiq via application.rb.
+  config.active_job.queue_adapter = :test
 end

@@ -1,0 +1,10 @@
+# BIP84 spec test vector — derived from the standard test mnemonic
+#   "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+# at derivation path m/84'/0'/0'.
+#
+# Public knowledge — present in BIP84, Trezor docs, every wallet's test suite.
+# Lives under test/fixtures/ which scripts/grep-xpub-guard.sh excludes.
+mainnet_zpub: "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs"
+mainnet_first_receive: "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu"
+mainnet_second_receive: "bc1qnjg0jd8228aq7egyzacy8cys3knf9xvrerkf9g"
+mainnet_first_change: "bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el"
