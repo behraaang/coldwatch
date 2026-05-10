@@ -54,3 +54,6 @@ Thumbs.db
 
 # Coverage
 /coverage/
+
+# Local agent runtime state
+.omc/

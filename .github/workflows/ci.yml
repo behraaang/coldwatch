@@ -35,13 +35,45 @@ jobs:
           HOME_IP: 1.2.3.4/32
           ACME_EMAIL: ci@example.com
 
-  # When the Rails apps land in personal/ and demo/, add a job here:
-  # rails-tests:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: ruby/setup-ruby@v1
-  #       with:
-  #         working-directory: personal
-  #         bundler-cache: true
-  #     - run: cd personal && bundle exec rspec
+  rails-tests:
+    name: rails minitest (personal)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: coldwatch
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: coldwatch_personal_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U coldwatch"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://coldwatch:postgres@localhost:5432/coldwatch_personal_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: personal
+          bundler-cache: true
+
+      - name: Build Tailwind CSS
+        working-directory: personal
+        run: bin/rails tailwindcss:build
+
+      - name: Load schema
+        working-directory: personal
+        run: bin/rails db:schema:load
+
+      - name: Run tests
+        working-directory: personal
+        run: bin/rails test
