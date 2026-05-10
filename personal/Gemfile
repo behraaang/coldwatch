@@ -21,6 +21,11 @@ gem "jbuilder"
 # Background jobs (Sidekiq) — for the mempool WebSocket worker, fee monitor, USD snapshot, heartbeat
 gem "sidekiq", "~> 7.3"
 gem "redis", "~> 5.3"
+# connection_pool 3.x changed `pop`'s arity, breaking sidekiq 7.3.x's
+# scheduled-job poller (it terminates with ArgumentError, leaving
+# self-rescheduling jobs queued forever). Pin to 2.x until sidekiq cuts
+# a 7.3-compatible release.
+gem "connection_pool", "~> 2.4"
 
 # Bitcoin: modern, maintained Ruby library for BIP32/44/49/84/86 derivation, PSBT, etc.
 gem "bitcoinrb", "~> 1.6", require: "bitcoin"
