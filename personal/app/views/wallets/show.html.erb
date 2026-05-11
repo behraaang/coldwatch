@@ -7,14 +7,23 @@
 <%# Live update subscription — Day 4 wiring, must stay %>
 <%= turbo_stream_from @wallet %>
 
-<%# Breadcrumb %>
-<div class="mb-8">
+<%# Breadcrumb + page-level actions %>
+<div class="mb-8 flex items-center justify-between gap-4">
   <%= link_to wallets_path,
         class: "inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-ink font-mono transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded" do %>
     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M15.75 19.5L8.25 12l7.5-7.5"/>
     </svg>
     All wallets
+  <% end %>
+
+  <%# Watch-only export — addresses, UTXOs, alarm history. No xpub in the file. %>
+  <%= link_to export_wallet_path(@wallet, format: :csv),
+        class: "inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-ink font-mono transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded" do %>
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+    </svg>
+    Download CSV
   <% end %>
 </div>
 
@@ -282,15 +291,3 @@
       wallet: @wallet,
       receive_addresses: @receive_addresses,
       change_addresses: @change_addresses %>
-
-<%# Footer actions — subdued, mono. CSV is for heir/spouse handoff and tax bookkeeping.
-    No xpub in the export; it's watch-only history only. %>
-<div class="mt-12 pt-6 border-t border-stone-100 flex items-center justify-center gap-4 text-xs font-mono">
-  <%= link_to export_wallet_path(@wallet, format: :csv),
-        class: "inline-flex items-center gap-1.5 text-stone-500 hover:text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-orange-brand/40 focus:rounded" do %>
-    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-    </svg>
-    Download history (CSV)
-  <% end %>
-</div>
