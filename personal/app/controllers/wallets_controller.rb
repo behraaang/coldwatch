@@ -1,5 +1,5 @@
 class WalletsController < ApplicationController
-  before_action :set_wallet, only: [:show, :sync]
+  before_action :set_wallet, only: [:show, :sync, :export]
 
   def index
     @wallets = Wallet.order(created_at: :desc)
@@ -39,6 +39,14 @@ class WalletsController < ApplicationController
     WalletSyncJob.perform_later(@wallet)
     flash[:notice] = "Sync queued."
     redirect_to @wallet
+  end
+
+  def export
+    filename = "coldwatch-#{@wallet.name.parameterize}-#{Date.current.iso8601}.csv"
+    send_data WalletCsvExporter.call(@wallet),
+              filename: filename,
+              type: "text/csv",
+              disposition: "attachment"
   end
 
   private

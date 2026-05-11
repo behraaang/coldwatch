@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :wallets, only: [:index, :new, :create, :show] do
     member do
       post :sync
+      get :export
     end
   end
   root "wallets#index"

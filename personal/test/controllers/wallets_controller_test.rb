@@ -70,4 +70,21 @@ class WalletsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to wallet_path(@wallet)
   end
+
+  test "GET /wallets/:id/export returns a CSV attachment with all three sections" do
+    @wallet.addresses.create!(address: "bc1qexport", branch: 0, index_at_branch: 0, tx_count: 1, balance_sats: 50_000)
+    @wallet.alert_events.create!(txid: "f" * 64, direction: "outgoing", amount_sats: 1_000, confirmed: true, block_height: 880_000)
+
+    get export_wallet_path(@wallet, format: :csv)
+
+    assert_response :success
+    assert_equal "text/csv", response.media_type
+    assert_match(/coldwatch-existing-\d{4}-\d{2}-\d{2}\.csv/, response["Content-Disposition"])
+    assert_includes response.body, "## addresses"
+    assert_includes response.body, "## utxos"
+    assert_includes response.body, "## alarm events"
+    assert_includes response.body, "bc1qexport"
+    # xpub must never appear in the export (watch-only data only)
+    refute_includes response.body, FAKE_ZPUB
+  end
 end
