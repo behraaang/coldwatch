@@ -63,7 +63,19 @@ The architectural decisions log is in `docs/build-plan.md`. Always update that f
 
 - **Tailwind v4 writes its build output to `app/assets/builds/tailwind.css`** (NOT `application.css`). Layout's stylesheet_link_tag must reference `tailwind`, not `application`. The install generator handles this.
 
-- **Test data:** for local testing, use the **BIP84 spec test vector zpub** — it's the well-known one derived from the mnemonic `"abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"`. The zpub is in `docs/sparrow-setup.md` (the only repo location the xpub-guard's grep exclusion allows). Never paste the user's real mainnet zpub into runner scripts that get logged.
+- **Test data:** for local testing, use the **BIP84 spec test vector zpub** — it's the well-known one derived from the mnemonic `"abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"`. The zpub is in `test/fixtures/files/test_xpubs.yml` (the xpub-guard excludes `test/fixtures/`). Never paste the user's real mainnet zpub into runner scripts that get logged.
+
+- **Production uses nginx, not Caddy.** The Hetzner box already runs nginx + certbot for behdev.com / behrangmirzamani.com on :80/:443, so the repo's `caddy/` stack is dev-only. On prod, the personal stack uses `docker-compose.production.yml` to bind web to `127.0.0.1:3001` and the existing nginx proxies `coldwatch.behdev.com` to it. See `docs/deploy.md` for the full runbook.
+
+- **`coldwatch_web` external network needs to exist on prod**, even though we don't run Caddy. `docker-compose.yml` declares `coldwatch_web: external: true` for the dev-time Caddy bridge. On the box you have to `docker network create coldwatch_web` once or compose refuses to start the personal stack.
+
+- **`connection_pool ~> 2.4` pin is load-bearing.** 3.x changed `Pool#pop`'s arity and crashes Sidekiq 7.3's scheduled-job poller silently — self-rescheduling jobs (FeeMonitorJob, UsdSnapshotJob) queue forever. Don't unpin until Sidekiq cuts a 7.3-compatible release.
+
+- **AR encryption keys must be in OS env before Rails boots.** `bin/rails test` loads `config/application.rb` before `test/test_helper.rb` runs, so `||=` defaults in test_helper are too late. Local docker injects them via `.env.development`; CI sets them in `.github/workflows/ci.yml`; prod has them in `personal/.env`.
+
+- **CI parallel workers fail on a fresh postgres.** Rails minitest `parallelize(workers: :number_of_processors)` creates per-worker DBs like `..._test-0`, `..._test-1`. They exist locally because prior runs created them, but a fresh CI postgres has only the base DB. CI sets `PARALLEL_WORKERS=1` to run sequentially.
+
+- **Tailscale subnet route for phone access.** Phone on cellular hits `coldwatch.behdev.com` → public DNS → public IP → nginx sees the cellular IP → 403 from the allowlist. Fix: box advertises its own public IP (`tailscale set --advertise-routes=$PUBLIC_IP/32` + `sysctl net.ipv4.ip_forward=1` + approve in admin console), and nginx allowlist gets `100.64.0.0/10` added alongside the home IP. Phone with Tailscale on now routes the public IP through the tunnel and arrives with a tailnet source IP. Runbook in `docs/deploy.md` Step 8.
 
 ## How to run / develop
 

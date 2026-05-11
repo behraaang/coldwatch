@@ -3,8 +3,8 @@
 The architecture record for coldwatch: what we're building, why, in what order, and what we'd cut if we slip. Companion to `architecture.md`, `threat-model.md`, `runbook.md`, `migration-emergency.md`, and `sparrow-setup.md`.
 
 - **Saved:** 2026-05-07
-- **Updated:** 2026-05-08
-- **Status:** BUILD — Day 1 shipped (Rails 7.2 skeleton, Postgres, Redis, Sidekiq, dev Docker stack)
+- **Updated:** 2026-05-10
+- **Status:** BUILD — Days 1–6 + Hetzner deploy + CSV export shipped. `https://coldwatch.behdev.com` is live, IP-allowlisted with a Tailscale subnet route for phone access. Demo stack + alarm hardening (E2E / HMAC / heartbeat) still pending.
 - **Hardware target (v1):** Ledger primary; migration to BitBox02 + Coldcard Mk4 planned (see `migration-emergency.md`)
 - **Visibility:** Public GitHub repo (this one) + public live demo on a Hetzner subdomain (`demo.{domain}`)
 
@@ -24,6 +24,16 @@ The architecture record for coldwatch: what we're building, why, in what order, 
 | 10 | **Alarm payload: full** (amount, txid, source addresses, mempool link) **+ ntfy E2E encryption enabled** | Maximum situational awareness; provider sees ciphertext only |
 | 11 | **Spouse view: built in v1** (passphrase-gated, balance-only URL) | Inheritance / continuity story matters |
 | 12 | **README opens with architecture diagram + feature list** | Technical-first framing matches digital-asset hiring audience |
+
+### Addendum — locked during 2026-05-10 deploy
+
+| # | Decision | Why | Supersedes |
+|---|---|---|---|
+| 13 | **TLS termination: existing nginx + certbot on the Hetzner box**, not the repo's `caddy/` stack | Box already runs nginx for behdev.com and behrangmirzamani.com on :80/:443; replacing it would break unrelated personal sites for marginal benefit | #7 (still IP-allowlisted, just via nginx `allow`/`deny` instead of Caddy) |
+| 14 | **Production compose override** at `personal/docker-compose.production.yml`, binds web to `127.0.0.1:3001` for nginx to proxy_pass into | Avoids dual-binding :3000 with the host's existing Rails app (behdev), and keeps `docker-compose.override.yml` dev-only | new |
+| 15 | **Phone access via Tailscale subnet route**: box advertises its own public IP into the tailnet, allowlist becomes `100.64.0.0/10` (any tailnet device) + the home IP fallback | Single URL (`coldwatch.behdev.com`) works on laptop home network AND phone on cellular when Tailscale is on; no second domain, no `tailscale serve` URL to remember | refines #7 |
+| 16 | **`connection_pool` pinned to `~> 2.4`** in the Gemfile | 3.x changed `Pool#pop` arity, terminating Sidekiq 7.3's scheduled-job poller silently — self-rescheduling jobs would queue forever | new |
+| 17 | **CSV export delivered as a single multi-section file** (metadata + addresses + UTXOs + alarm events, blank rows between sections) | No new gems (Ruby stdlib `CSV`); Excel/Numbers/Sheets all read it correctly; one button on the show page instead of a download menu | new |
 
 ## Pitch
 
